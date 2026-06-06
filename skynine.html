@@ -1,0 +1,282 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKY NINE KONVEKSI STORE</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#f5f5f5;
+    padding:15px;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.15);
+}
+
+.header{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.header h1{
+    font-size:24px;
+}
+
+.header p{
+    color:#666;
+}
+
+label{
+    display:block;
+    margin-top:12px;
+    font-weight:bold;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    cursor:pointer;
+    border-radius:5px;
+    margin-top:12px;
+    font-weight:bold;
+}
+
+.btnTambah{
+    background:#000;
+    color:#fff;
+}
+
+.btnWA{
+    background:#25D366;
+    color:#fff;
+    font-size:16px;
+}
+
+.keranjang{
+    margin-top:15px;
+    border:1px dashed #999;
+    padding:10px;
+    min-height:60px;
+}
+
+.ringkasan{
+    margin-top:15px;
+    padding:10px;
+    border:1px solid #ddd;
+    background:#fafafa;
+}
+
+.footer{
+    text-align:center;
+    margin-top:15px;
+    font-size:12px;
+    color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h1>SKY NINE KONVEKSI STORE</h1>
+<p>Pusat Konveksi Seragam & Kaos Jombang</p>
+</div>
+
+<label>Nama Pembeli</label>
+<input type="text" id="namaPembeli">
+
+<label>Alamat Pengiriman</label>
+<textarea id="alamatPembeli"></textarea>
+
+<label>Pilih Produk</label>
+<select id="barang" onchange="updateSubtotal()">
+<option value="0">-- Pilih Produk --</option>
+<option value="45000">TK Lotto - 45.000</option>
+<option value="50000">TK Adidas - 50.000</option>
+<option value="60000">SD Lotto - 60.000</option>
+<option value="70000">SD Adidas - 70.000</option>
+<option value="75000">SMP Lotto - 75.000</option>
+<option value="80000">SMP Adidas - 80.000</option>
+<option value="80000">SMA Lotto - 80.000</option>
+<option value="90000">SMA Adidas - 90.000</option>
+<option value="80000">Kaos Dewasa 24s - 80.000</option>
+<option value="70000">Kaos Dewasa 30s - 70.000</option>
+<option value="60000">Kaos Dewasa PE - 60.000</option>
+</select>
+
+<label>Jumlah</label>
+<input type="number" id="jumlah" value="1" min="1" oninput="updateSubtotal()">
+
+<label>Subtotal</label>
+<input type="text" id="subtotal" readonly value="Rp 0">
+
+<button class="btnTambah" onclick="tambahBarang()">
+➕ TAMBAH KE KERANJANG
+</button>
+
+<div class="keranjang" id="daftarBelanja">
+Belum ada produk.
+</div>
+
+<div class="ringkasan" id="hasil"></div>
+
+<label>Catatan / Ukuran</label>
+<input type="text" id="catatanPembeli">
+
+<button class="btnWA" onclick="kirimOrderWA()">
+💬 KIRIM PESANAN KE WHATSAPP
+</button>
+
+<div class="footer">
+SKY NINE KONVEKSI STORE
+</div>
+
+</div>
+
+<script>
+
+let listBarang=[];
+let totalHarga=0;
+let totalItem=0;
+
+function formatRp(x){
+return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
+}
+
+function updateSubtotal(){
+let harga=parseInt(document.getElementById("barang").value)||0;
+let qty=parseInt(document.getElementById("jumlah").value)||0;
+
+document.getElementById("subtotal").value=
+"Rp "+formatRp(harga*qty);
+}
+
+function tambahBarang(){
+
+let barang=document.getElementById("barang");
+
+if(barang.value=="0"){
+alert("Pilih produk terlebih dahulu");
+return;
+}
+
+let nama=barang.options[barang.selectedIndex].text;
+let harga=parseInt(barang.value);
+let qty=parseInt(document.getElementById("jumlah").value);
+
+let subtotal=harga*qty;
+
+listBarang.push({
+nama:nama,
+jumlah:qty,
+subtotal:subtotal
+});
+
+totalHarga+=subtotal;
+totalItem+=qty;
+
+updateKeranjang();
+
+barang.value="0";
+document.getElementById("jumlah").value=1;
+document.getElementById("subtotal").value="Rp 0";
+}
+
+function updateKeranjang(){
+
+let html="";
+
+for(let i=0;i<listBarang.length;i++){
+html+=`
+<div>
+📦 ${listBarang[i].nama}
+(x${listBarang[i].jumlah})
+= Rp ${formatRp(listBarang[i].subtotal)}
+</div>
+`;
+}
+
+document.getElementById("daftarBelanja").innerHTML=
+html || "Belum ada produk.";
+
+document.getElementById("hasil").innerHTML=
+`
+<b>Total Item:</b> ${totalItem}<br>
+<b>Total Harga:</b> Rp ${formatRp(totalHarga)}
+`;
+}
+
+function kirimOrderWA(){
+
+if(listBarang.length===0){
+alert("Keranjang masih kosong");
+return;
+}
+
+let nama=
+document.getElementById("namaPembeli").value || "-";
+
+let alamat=
+document.getElementById("alamatPembeli").value || "-";
+
+let catatan=
+document.getElementById("catatanPembeli").value || "-";
+
+let pesan=
+"*PESANAN BARU SKY NINE STORE*%0A%0A";
+
+pesan+="Nama : "+nama+"%0A";
+pesan+="Alamat : "+alamat+"%0A";
+pesan+="Catatan : "+catatan+"%0A%0A";
+
+for(let i=0;i<listBarang.length;i++){
+pesan+=
+"- "+listBarang[i].nama+
+" x"+listBarang[i].jumlah+
+" = Rp "+formatRp(listBarang[i].subtotal)+
+"%0A";
+}
+
+pesan+="%0A";
+pesan+="TOTAL ITEM : "+totalItem+"%0A";
+pesan+="TOTAL HARGA : Rp "+formatRp(totalHarga);
+
+let nomor="6285196292184";
+
+window.location.href=
+"https://wa.me/"+nomor+"?text="+pesan;
+}
+
+</script>
+
+</body>
+</html>
+```
